@@ -22,6 +22,10 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error?.response?.status === 401) {
+      return Promise.reject(new Error("登录已过期，请重新登录后再试"));
+    }
+
     const message =
       error?.response?.data?.message ||
       error?.message ||

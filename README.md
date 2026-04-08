@@ -313,6 +313,25 @@ python run.py
 
 > 注意：后端默认使用 MySQL 连接串。如果你本地不走 Docker，需要自行准备 MySQL，或者在开发阶段换成测试数据库配置。
 
+#### Windows 本机推荐方式
+
+如果你这台机器和我这次排查时一样，系统代理里挂着 `127.0.0.1:7890`，但代理软件没有一直开着，那么 `pip` 这类工具会被系统代理拖死。
+
+这个仓库已经补了两个 PowerShell 脚本，专门把“当前终端进程”的代理影响隔离掉，不会去改你的全局网络设置：
+
+```powershell
+.\scripts\backend-bootstrap.ps1
+.\scripts\backend-run.ps1
+```
+
+它们分别负责：
+
+- 创建项目根目录下的 `.venv`
+- 使用 Python 3.11 + 清华源安装依赖
+- 在当前 PowerShell 会话内绕过失效代理
+- 在本机直跑时自动把数据库主机改成 `127.0.0.1:3306`
+- 直接启动后端服务
+
 ## 已完成的验证
 
 当前仓库已经完成过这些验证：
@@ -320,9 +339,15 @@ python run.py
 - 前端依赖安装完成
 - 前端生产构建通过：`npm run build`
 - 后端源码语法校验通过：`python -m compileall backend`
+- 后端测试通过：`.venv\Scripts\python -m pytest backend\tests -q`
+- Docker 后端链路通过：`docker compose up --build -d mysql backend`
+- 后端健康检查通过：`http://localhost:5000/api/health`
 - `docker compose config` 通过，Compose 配置结构正确
 
-由于当前机器环境里存在 Python 出站代理异常，以及 Docker Desktop 引擎未正常启动，后端 `pytest` 与整套 `docker compose up` 的运行验证还依赖你本机环境配合。
+这次排查里，真正的环境根因有两个：
+
+- Windows 系统代理指向了 `127.0.0.1:7890`，但代理进程并没有稳定运行，导致 `pip` 读取系统代理后安装失败
+- MySQL 8.4 默认使用 `caching_sha2_password`，PyMySQL 连接时需要额外安装 `cryptography`
 
 ## 适合继续扩展的方向
 

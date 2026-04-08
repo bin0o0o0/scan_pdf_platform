@@ -11,4 +11,9 @@ node_modules/
 dist/
 .DS_Store
 backend/uploads/
-
+*.log
+*.err.log
+.debug_*/
+.debug_*
+.tmp_*/
+.codex/

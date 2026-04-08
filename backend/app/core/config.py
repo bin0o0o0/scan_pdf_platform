@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from datetime import timedelta
 
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -10,6 +11,10 @@ class Config:
 
     SECRET_KEY = os.getenv("SECRET_KEY", "scan-pdf-secret")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-me")
+    # 开发阶段如果 access token 只有默认的十几分钟，
+    # 页面停留一会儿后再去点“生成 PDF”就很容易直接 401。
+    # 这里先把有效期拉长到 7 天，避免本地体验频繁掉登录态。
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL",
         (
@@ -35,4 +40,3 @@ class TestConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = "sqlite://"
     FRONTEND_ORIGIN = "*"
-
