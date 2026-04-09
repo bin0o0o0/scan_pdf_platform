@@ -11,6 +11,8 @@ defineEmits<{
   (event: "submit"): void;
 }>();
 
+// defineModel 是 Vue 3.4 提供的语法糖，
+// 可以把父组件的 v-model:username / v-model:password 直接映射到这里。
 const username = defineModel<string>("username", { required: true });
 const password = defineModel<string>("password", { required: true });
 </script>

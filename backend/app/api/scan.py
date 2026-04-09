@@ -2,7 +2,7 @@ from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from flask import Blueprint, send_file, request
+from flask import Blueprint, request, send_file
 
 from ..auth.decorators import current_user_required
 from ..core.errors import ApiError
@@ -14,6 +14,8 @@ scan_bp = Blueprint("scan", __name__)
 @scan_bp.post("/scan")
 @current_user_required
 def scan_files():
+    """接收多张图片，扫描矫正后合成为一个 PDF。"""
+
     files = request.files.getlist("files[]")
     if not files:
         raise ApiError("至少需要上传一张图片。", 400)
@@ -23,10 +25,12 @@ def scan_files():
         pdf_stream = build_pdf_from_uploads(files, upload_dir)
 
     pdf_stream.seek(0)
+
+    # send_file 对 Flask 来说就是“把生成好的文件作为响应体返回”。
+    # 这里不落长期磁盘文件，而是直接把内存里的 PDF 发回给前端下载。
     return send_file(
         BytesIO(pdf_stream.read()),
         mimetype="application/pdf",
         as_attachment=True,
         download_name="scanned-document.pdf",
     )
-

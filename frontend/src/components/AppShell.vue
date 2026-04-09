@@ -11,6 +11,9 @@ const authStore = useAuthStore();
 
 async function handleLogout() {
   authStore.logout();
+
+  // 这里用 location.assign 做一次“硬跳转”，
+  // 可以把当前页内存状态一并清掉，适合教学项目演示完整退出效果。
   await window.location.assign("/login");
 }
 </script>

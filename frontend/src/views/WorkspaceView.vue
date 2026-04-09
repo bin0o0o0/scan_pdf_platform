@@ -24,7 +24,7 @@ async function submitFiles() {
   try {
     await scanStore.submitFiles();
   } catch {
-    // 错误信息已经在 store 中统一处理，这里不重复覆盖。
+    // 错误信息已经在 store 里统一处理，这里不重复覆盖。
   }
 }
 </script>

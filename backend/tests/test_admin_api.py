@@ -34,3 +34,23 @@ def test_non_admin_cannot_access_admin_api(client):
     response = client.get("/api/admin/users", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 403
 
+
+def test_admin_api_keeps_at_least_one_available_admin(client):
+    token = login(client, "admin", "admin123456")
+
+    users_response = client.get("/api/admin/users", headers={"Authorization": f"Bearer {token}"})
+    admin_user = next(user for user in users_response.get_json()["users"] if user["username"] == "admin")
+
+    demote_response = client.patch(
+        f"/api/admin/users/{admin_user['id']}/role",
+        json={"role": "user"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert demote_response.status_code == 400
+
+    disable_response = client.patch(
+        f"/api/admin/users/{admin_user['id']}/status",
+        json={"status": "disabled"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert disable_response.status_code == 400

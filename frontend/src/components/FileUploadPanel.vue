@@ -7,6 +7,8 @@ function onFileChange(event: Event) {
   const target = event.target as HTMLInputElement;
   const files = Array.from(target.files || []);
   emit("files-selected", files);
+
+  // 清空 input 的 value，这样连续选择同一个文件时也能再次触发 change 事件。
   target.value = "";
 }
 

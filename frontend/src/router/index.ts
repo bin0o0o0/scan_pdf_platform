@@ -35,10 +35,13 @@ export const router = createRouter({
   ]
 });
 
-// 路由守卫把“页面权限”集中在一处管理，页面组件只需要关心自身展示和交互。
+// 路由守卫可以理解成“进入页面之前的统一门禁”。
+// 这样权限控制只写一处，页面组件本身就能更专注于展示和交互。
 router.beforeEach(async (to) => {
   const authStore = useAuthStore();
 
+  // 页面刷新后，Pinia 的内存状态会丢失，但 sessionStorage 里的 token 还在。
+  // 所以这里要主动调用 /me，把当前用户资料重新拉回来。
   if (authStore.token && !authStore.currentUser && !authStore.isBootstrapping) {
     try {
       await authStore.bootstrap();
@@ -51,7 +54,7 @@ router.beforeEach(async (to) => {
     return { name: "login", query: { redirect: to.fullPath } };
   }
 
-  // 管理页不单独在组件里做判定，是因为权限控制越靠近路由入口越不容易漏掉。
+  // 管理员页在路由入口就做拦截，比等组件加载后再判断更稳妥。
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
     return { name: "workspace" };
   }

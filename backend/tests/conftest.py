@@ -16,7 +16,7 @@ from app.services.user_service import hash_password
 
 
 class TestingConfig(TestConfig):
-    JWT_SECRET_KEY = "test-secret"
+    JWT_SECRET_KEY = "test-secret-key-for-learning-project-2026"
 
 
 @pytest.fixture()

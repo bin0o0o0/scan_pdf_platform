@@ -21,6 +21,8 @@ async function handleSubmit() {
   try {
     await authStore.login(username.value, password.value);
     await authStore.refreshCurrentUser();
+
+    // 如果用户是被受保护页面拦截过来的，就登录后回到原目标页。
     const redirect = typeof route.query.redirect === "string" ? route.query.redirect : "/workspace";
     await router.push(redirect);
   } catch (error) {

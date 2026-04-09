@@ -10,7 +10,7 @@ export const useScanStore = defineStore("scan", () => {
   const pdfBlobUrl = ref("");
 
   function addFiles(files: File[]) {
-    // 这里做追加而不是覆盖，是为了支持分批拖拽上传。
+    // 这里做追加而不是覆盖，是为了支持“分批选择图片再一起提交”。
     selectedFiles.value = [...selectedFiles.value, ...files];
   }
 
@@ -20,11 +20,13 @@ export const useScanStore = defineStore("scan", () => {
 
   function clearFiles() {
     selectedFiles.value = [];
+    resetResult();
   }
 
   function resetResult() {
     errorMessage.value = "";
     if (pdfBlobUrl.value) {
+      // createObjectURL 创建出来的是浏览器侧临时地址，用完要主动释放。
       URL.revokeObjectURL(pdfBlobUrl.value);
     }
     pdfBlobUrl.value = "";
@@ -33,6 +35,7 @@ export const useScanStore = defineStore("scan", () => {
   async function submitFiles() {
     resetResult();
     isSubmitting.value = true;
+
     try {
       const pdfBlob = await submitScan(selectedFiles.value);
       pdfBlobUrl.value = URL.createObjectURL(pdfBlob);

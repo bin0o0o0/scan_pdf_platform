@@ -8,10 +8,14 @@ import type { User } from "../types";
 const TOKEN_KEY = "scan-pdf-token";
 
 export const useAuthStore = defineStore("auth", () => {
+  // token 持久化在 sessionStorage，浏览器标签页关闭后自动失效，
+  // 对学习项目来说比 localStorage 更克制一些。
   const token = ref<string | null>(sessionStorage.getItem(TOKEN_KEY));
   const currentUser = ref<User | null>(null);
   const isBootstrapping = ref(false);
 
+  // API 层不直接 import store，而是通过 getter 回调拿 token，
+  // 这样可以避免“API 模块依赖 store，store 又依赖 API”的循环引用。
   setAuthTokenGetter(() => token.value);
 
   const isAuthenticated = computed(() => Boolean(token.value && currentUser.value));
